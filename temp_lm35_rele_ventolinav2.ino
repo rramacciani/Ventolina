@@ -10,7 +10,7 @@
 #define LED_INT 13  //Led Interno
 
 #define TEMP_HI   32  //Temperatura MAX
-#define TEMP_LOW  28  //Temperatura MIN
+#define TEMP_LOW  29  //Temperatura MIN
 
 
 bool isHot = false;
