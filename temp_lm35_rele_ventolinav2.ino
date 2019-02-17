@@ -6,26 +6,26 @@
 #define TEMP_HI   34  //Temperatura MAX
 #define TEMP_LOW  30  //Temperatura MIN
 
-void setup()
-{
+
+bool isHot = false;
+char incomingCMD;
+
+void fanOFF();
+void fanOn();
+
+
+void setup(){
   Serial.begin(9600);
   pinMode(RELE_S, OUTPUT);
   pinMode(LED_INT, OUTPUT);
   pinMode(LED7, OUTPUT);
 }
 
-bool fanOFF(bool blinkLed){
+void fanOFF(){
   digitalWrite(RELE_S, LOW);
   digitalWrite(LED_INT, LOW);
 
-  //Fa lampeggiare il led per controllare
-  if(blinkLed){
-    digitalWrite(LED7, LOW);
-    return false;
-  }else{
-    digitalWrite(LED7, HIGH);
-    return true;
-  }
+  digitalWrite(LED7, !digitalRead(LED7));
 }
 
 void fanOn(){
@@ -36,61 +36,54 @@ void fanOn(){
     Serial.print(" FAN=[ON]");
 }
 
-void loop ()                             
-{
-  bool blinkLed = true;
-  bool isHot = false;
-  char incomingCMD;
-  
-  while(true){
+void loop (){
 
-    //Leggo il valore dal sensore di t.
-    int aRead = analogRead(potPin);
-  
-    //Conversione
-    float tempC = aRead * 0.48875;
-  
-    Serial.print("T=[");
-    Serial.print(tempC);
-    Serial.print("]");
+  //Leggo il valore dal sensore di t.
+  int aRead = analogRead(potPin);
 
-    incomingCMD = Serial.read();
+  //Conversione
+  float tempC = aRead * 0.48875;
 
-    if(incomingCMD == 'a'){
-      do{
-        Serial.println("ACCESO!!");
-        Serial.println(incomingCMD);
-        isHot = true;
-        //Accende tutto
+  Serial.print("T=[");
+  Serial.print(tempC);
+  Serial.print("]");
+
+  incomingCMD = Serial.read();
+
+  if(incomingCMD == 'a'){
+    do{
+      Serial.println("ACCESO!!");
+      Serial.println(incomingCMD);
+      isHot = true;
+      //Accende tutto
+      fanOn();
+      incomingCMD = Serial.read();
+      
+      Serial.println(incomingCMD);
+    }while( incomingCMD == ' ' );
+  }else{
+    //Controllo Rele'
+    if(tempC >= TEMP_HI){
+      isHot = true;
+      //Accende tutto
+      fanOn();
+    }else if((tempC > TEMP_LOW) && (tempC < TEMP_HI)) {
+      //Siamo nella temperatura intermedia, continuiamo a fare quello che facevamo
+      if(isHot){
+        //eravamo in fase di raffreddamento, continuiamo
         fanOn();
-        incomingCMD = Serial.read();
-        
-        Serial.println(incomingCMD);
-      }while( incomingCMD == ' ' );
-    }else{
-      //Controllo Rele'
-      if(tempC >= TEMP_HI){
-        isHot = true;
-        //Accende tutto
-        fanOn();
-      }else if((tempC > TEMP_LOW) && (tempC < TEMP_HI)) {
-        //Siamo nella temperatura intermedia, continuiamo a fare quello che facevamo
-        if(isHot){
-          //eravamo in fase di raffreddamento, continuiamo
-          fanOn();
-        }else{
-          //eravamo in fase spenta, continuiamo
-          //Fa lampeggiare il led per controllare
-          blinkLed = fanOFF(blinkLed);
-        }
-      }else if(tempC <= TEMP_LOW) {
-        isHot = false;
+      }else{
+        //eravamo in fase spenta, continuiamo
         //Fa lampeggiare il led per controllare
-        blinkLed = fanOFF(blinkLed);
+        fanOFF();
       }
+    }else if(tempC <= TEMP_LOW) {
+      isHot = false;
+      //Fa lampeggiare il led per controllare
+      fanOFF();
     }
-
-    Serial.println("");
-    delay(1000);
   }
+
+  Serial.println("");
+  delay(1000);
 }
