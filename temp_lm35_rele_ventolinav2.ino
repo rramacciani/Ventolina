@@ -1,10 +1,16 @@
+/* Conf: 
+ *  Arduino Nano
+ *  ATmega328P (Old Bootloader)
+ *  9600 baud
+ */
+
 #define potPin  A0  //Analog IN Temperatura
 #define RELE_S  12  //Rele pin S
 #define LED7    7   //Led Esterno
 #define LED_INT 13  //Led Interno
 
-#define TEMP_HI   34  //Temperatura MAX
-#define TEMP_LOW  30  //Temperatura MIN
+#define TEMP_HI   32  //Temperatura MAX
+#define TEMP_LOW  28  //Temperatura MIN
 
 
 bool isHot = false;
