@@ -9,8 +9,8 @@
 #define LED7    7   //Led Esterno
 #define LED_INT 13  //Led Interno
 
-#define TEMP_HI   32  //Temperatura MAX
-#define TEMP_LOW  29  //Temperatura MIN
+#define TEMP_HI   35  //Temperatura MAX
+#define TEMP_LOW  32  //Temperatura MIN
 
 
 bool isHot = false;
@@ -28,6 +28,7 @@ void setup(){
 }
 
 void fanOFF(){
+  Serial.println("fanOFF");
   digitalWrite(RELE_S, LOW);
   digitalWrite(LED_INT, LOW);
 
@@ -36,6 +37,7 @@ void fanOFF(){
 
 void fanOn(){
     //Fa cambiare lo status del led
+    Serial.println("fanOn");
     digitalWrite(LED7, HIGH);
     digitalWrite(RELE_S, HIGH);
     digitalWrite(LED_INT, HIGH);
@@ -90,6 +92,6 @@ void loop (){
     }
   }
 
-  Serial.println("");
+  Serial.println("Loop");
   delay(1000);
 }
