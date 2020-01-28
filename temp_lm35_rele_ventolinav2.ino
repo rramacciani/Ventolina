@@ -14,62 +14,59 @@
 
 
 bool isHot = false;
-char incomingCMD;
+const long interval = 1000;
+unsigned long previousMillis = 0;
 
 void fanOFF();
 void fanOn();
-
+bool isFanOn();
 
 void setup(){
   Serial.begin(9600);
+  delay(100);
+  
   pinMode(RELE_S, OUTPUT);
   pinMode(LED_INT, OUTPUT);
   pinMode(LED7, OUTPUT);
 }
 
 void fanOFF(){
-  Serial.println("fanOFF");
+  digitalWrite(LED7, !digitalRead(LED7));
   digitalWrite(RELE_S, LOW);
   digitalWrite(LED_INT, LOW);
-
-  digitalWrite(LED7, !digitalRead(LED7));
 }
 
 void fanOn(){
-    //Fa cambiare lo status del led
-    Serial.println("fanOn");
     digitalWrite(LED7, HIGH);
     digitalWrite(RELE_S, HIGH);
     digitalWrite(LED_INT, HIGH);
-    Serial.print(" FAN=[ON]");
+}
+
+bool isFanOn(){
+  return digitalRead(RELE_S);
 }
 
 void loop (){
+  unsigned long currentMillis = millis();
 
-  //Leggo il valore dal sensore di t.
-  int aRead = analogRead(potPin);
-
-  //Conversione
-  float tempC = aRead * 0.48875;
-
-  Serial.print("T=[");
-  Serial.print(tempC);
-  Serial.print("]");
-
-  incomingCMD = Serial.read();
-
-  if(incomingCMD == 'a'){
-    do{
-      Serial.println("ACCESO!!");
-      Serial.println(incomingCMD);
-      isHot = true;
-      //Accende tutto
-      fanOn();
-      incomingCMD = Serial.read();
-      
-      Serial.println(incomingCMD);
-    }while( incomingCMD == ' ' );
-  }else{
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    
+    //Leggo il valore dal sensore di t.
+    int aRead = analogRead(potPin);
+  
+    //Conversione
+    float tempC = aRead * 0.48875;
+  
+    Serial.print("T=[");
+    Serial.print(tempC);
+    Serial.print("]");
+    if(isFanOn()){
+      Serial.print(" FAN=[ON]");
+    }else{
+      Serial.print(" FAN=[OFF]");
+    }
+    
     //Controllo Rele'
     if(tempC >= TEMP_HI){
       isHot = true;
@@ -90,8 +87,8 @@ void loop (){
       //Fa lampeggiare il led per controllare
       fanOFF();
     }
-  }
 
-  Serial.println("Loop");
-  delay(1000);
+    Serial.println("");
+  }
+  
 }
